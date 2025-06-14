@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+set -e
+
+# lowendmains (c) 2025
+: '
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'
+
+# Do not touch these!
+VERSION='0.1rc1'
+UN="$PWD/bin/devinfo-variants/unlock"
+RE="$PWD/bin/devinfo-variants/relock"
+
+# ansi escape codes
+r="\033[0;31m"
+g="\033[0;32m"
+y="\033[1;33m"
+c="\033[0;36m"
+re="\033[0m"
+
+
+msg1() {
+	echo -e "edlunlock - version $VERSION
+Copyright (c) 2025, lowendmains
+
+This software is licensed under:
+GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+
+This is free software; you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+		
+	"
+}
+
+msg2() {
+	echo -e "edlunlock - version $VERSION
+(c) lowendmains, 2025
+		
+	"
+}
+
+usage() {
+	echo -e "USAGE: $0 -i <DEVICE_PATH> -f <FIREHOSE_PATH> -s <STORAGE_TYPE>
+-e|--bkerler : Use bkerler/edl instead of qdl
+-f|--firehose : Firehose mbn file, usually named prog.*.ddr.mbn
+-i|--device : Device path to the 9008 device, usually /dev/ttyUSB0
+-s|--storage : Storage type, either 'emmc', 'nand', or 'ufs'
+-v : Running version of $0
+-h : Also shows this message
+		
+	"
+}
+
+for ((i = 1; i <= $#; i++)); do
+arg="${!i}"
+    case "$arg" in
+	-f|--firehose)
+		((++i))
+		FIREHOSE="${!i}"
+        ;;
+	-i|--device)
+		((++i))
+		DEV_PATH="${!i}"
+        ;;
+	-s|--storage)
+		((++i))
+		STORAGE_TYPE="${!i}"
+    ;;
+	-e|--bkerler)
+		BKERLER=true
+		;;
+	--relock)
+		RELOCK=true
+		;;
+	-v|--version)
+		msg1
+		exit 0
+		;;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	*)
+			echo -e "${r}[E] Unknown argument: $1${re}"
+			usage
+			exit 1
+			;;
+    esac
+done
+
+if command -v qdl; then
+	QDL_EXISTS=true
+else
+	echo -e "${r}[E]${re} You need QDL for this script! Build ${c}https://github.com/linux-msm/qdl${re} or install from your package manager."
+	exit 1
+fi
+
+if [[ "${BKERLER:-}" == true ]]; then
+	if command -v edl; then
+		echo -e "${c}[i] Using bkerler/edl instead of qdl${re}"
+		if [[ ! "${RELOCK:-}" == true ]]; then
+			echo "$UN"
+			edl w devinfo "$UN/devinfo.img"
+			exit
+		else
+			echo "$RE"
+			edl w devinfo "$RE/devinfo.img"
+			exit
+		fi
+	else
+		echo -e "${r}[E]${re} You need bkerler's EDL for this script! Install ${c}https://github.com/bkerler/edl${re}"
+		exit 1
+	fi
+else
+	if [[ "$DEV_PATH" && "$FIREHOSE" ]]; then
+		msg2
+		if [[ ! "$STORAGE_TYPE" ]]; then
+			echo -e "${y}[W] Assuming emmc as storage type. Pass --storage if otherwise.${re}"
+			STORAGE_TYPE='emmc'
+		fi
+		if [[ "${RELOCK:-}" == true ]]; then
+			echo -e "${y}[W] Relocking instead of unlocking. Be warned!${re}"
+			cd "$RE"
+			pwd
+			qdl --debug --storage "$STORAGE_TYPE" --include "$DEV_PATH" "$FIREHOSE" rawprogram0.xml
+			exit
+		fi
+		cd "$UN"
+		pwd
+		qdl --debug --storage "$STORAGE_TYPE" --include "$DEV_PATH" "$FIREHOSE" rawprogram0.xml
+		exit
+	else  
+		msg1
+		usage
+		exit 1
+	fi
+fi
