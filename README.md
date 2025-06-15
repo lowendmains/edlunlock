@@ -1,5 +1,5 @@
 # edlunlock
-Unlock any* Qualcomm device with EDL
+Unlock any[^1] Qualcomm device with EDL
 
 ## Usage 
 ```bash
@@ -8,6 +8,7 @@ Unlock any* Qualcomm device with EDL
 -f|--firehose : Firehose mbn file, usually named prog.*.ddr.mbn
 -i|--device : Device path to the 9008 device, usually /dev/ttyUSB0
 -s|--storage : Storage type, either 'emmc', 'nand', or 'ufs'
+--relock : Relock device instead of unlocking it
 -v : Running version of ./edlunlock
 -h : Also shows this message
 ```
@@ -40,16 +41,9 @@ Example:
 </table>
 
 # Licensing
+This project is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License version 3.</a>
+<img align="right" src="https://www.gnu.org/graphics/gplv3-127x51.png" alt="GPLv3 logo">
 
-<table>
-  <tr>
-    <td>
-      <p>
-        This project is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License version 3.</a>
-      </p>
-    </td>
-    <td style="padding-left: 20px;">
-      <img src="https://www.gnu.org/graphics/gplv3-127x51.png" alt="GPLv3 logo">
-    </td>
-  </tr>
-</table>
+<br>
+
+[^1]: Relies on noauth/bypassed EDL + devinfo
