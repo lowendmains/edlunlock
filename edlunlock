@@ -19,7 +19,7 @@ set -e
 '
 
 # Do not touch these!
-VERSION='0.1rc1'
+VERSION='0.1'
 UN="$PWD/bin/devinfo-variants/unlock"
 RE="$PWD/bin/devinfo-variants/relock"
 
