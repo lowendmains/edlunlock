@@ -57,6 +57,7 @@ usage() {
 -f|--firehose : Firehose mbn file, usually named prog.*.ddr.mbn
 -i|--device : Device path to the 9008 device, usually /dev/ttyUSB0
 -s|--storage : Storage type, either 'emmc', 'nand', or 'ufs'
+--relock : Relock device instead of unlocking it
 -v : Running version of $0
 -h : Also shows this message
 		
